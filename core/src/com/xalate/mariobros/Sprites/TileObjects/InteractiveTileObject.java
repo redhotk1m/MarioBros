@@ -1,6 +1,8 @@
-package com.xalate.mariobros.Sprites;
+package com.xalate.mariobros.Sprites.TileObjects;
 
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -15,12 +17,16 @@ public abstract class InteractiveTileObject {
     protected TiledMapTile tile;
     protected Rectangle bounds;
     protected Body body;
+    protected PlayScreen screen;
     protected Fixture fixture;
+    protected MapObject object;
 
-    public InteractiveTileObject(PlayScreen screen, Rectangle bounds){
+    public InteractiveTileObject(PlayScreen screen, MapObject object){
+        this.object = object;
+        this.screen = screen;
         this.world = screen.getWorld();
         this.map = screen.getMap();
-        this.bounds = bounds;
+        this.bounds = ((RectangleMapObject) object).getRectangle();
 
         BodyDef bodyDef = new BodyDef();
         FixtureDef fixtureDef = new FixtureDef();

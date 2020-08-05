@@ -8,8 +8,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.xalate.mariobros.MarioBros;
 import com.xalate.mariobros.Screens.PlayScreen;
-import com.xalate.mariobros.Sprites.Brick;
-import com.xalate.mariobros.Sprites.Coin;
+import com.xalate.mariobros.Sprites.TileObjects.Brick;
+import com.xalate.mariobros.Sprites.TileObjects.Coin;
 import com.xalate.mariobros.Sprites.Enemies.Goomba;
 
 public class B2WorldCreator {
@@ -58,14 +58,14 @@ public class B2WorldCreator {
         //Creating coin bodies/fixtures
         for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)){
             Rectangle rectangle = ((RectangleMapObject)object).getRectangle();
-            new Coin(screen,rectangle);
+            new Coin(screen,object);
         }
 
 
         //Creating bricks bodies/fixtures
         for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)){
             Rectangle rectangle = ((RectangleMapObject)object).getRectangle();
-            new Brick(screen,rectangle);
+            new Brick(screen,object);
         }
 
         //create all goombas

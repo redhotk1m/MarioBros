@@ -12,14 +12,23 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.sun.tools.javac.jvm.Items;
 import com.xalate.mariobros.MarioBros;
 import com.xalate.mariobros.Scenes.Hud;
 import com.xalate.mariobros.Sprites.Enemies.Enemy;
+import com.xalate.mariobros.Sprites.Items.Item;
+import com.xalate.mariobros.Sprites.Items.ItemDef;
+import com.xalate.mariobros.Sprites.Items.Mushroom;
 import com.xalate.mariobros.Sprites.Mario;
 import com.xalate.mariobros.Tools.B2WorldCreator;
 import com.xalate.mariobros.Tools.WorldContactListener;
+
+import java.util.PriorityQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class PlayScreen implements Screen {
     //reference to our Game, used to set screens
@@ -46,6 +55,9 @@ public class PlayScreen implements Screen {
     private Mario player;
 
     private Music music;
+
+    private Array<Item> items;
+    private LinkedBlockingQueue<ItemDef> itemsToSpawn;
 
     public PlayScreen(MarioBros game){
         atlas = new TextureAtlas("Mario_and_Enemies.pack");
@@ -79,7 +91,22 @@ public class PlayScreen implements Screen {
         music.setLooping(true);
         music.play();
 
+        items = new Array<Item>();
+        itemsToSpawn = new LinkedBlockingQueue<ItemDef>();
 
+    }
+
+    public void spawnItem(ItemDef idef){
+        itemsToSpawn.add(idef);
+    }
+
+    public void handleSpawningItems(){
+        if (!itemsToSpawn.isEmpty()){
+            ItemDef idef = itemsToSpawn.poll();
+            if (idef.type == Mushroom.class){
+                items.add(new Mushroom(this,idef.position.x,idef.position.y));
+            }
+        }
     }
 
     public TextureAtlas getAtlas(){
@@ -107,6 +134,7 @@ public class PlayScreen implements Screen {
     public void update(float dt){
         //Handle user input first
         handleInput(dt);
+        handleSpawningItems();
 
         //Read more about this
         //takes 1 step in the physics simulation (60 times per second)
@@ -116,6 +144,9 @@ public class PlayScreen implements Screen {
             enemy.update(dt);
             if (enemy.getX() < player.getX() + gameCam.viewportWidth + 224 / MarioBros.PPM) //Tiles from center = 12 + 2 = 14 * 16 pixels = 224
                 enemy.b2body.setActive(true);
+        }
+        for (Item item : items){
+            item.update(dt);
         }
         hud.update(dt);
 
@@ -145,6 +176,9 @@ public class PlayScreen implements Screen {
         player.draw(game.batch);
         for (Enemy enemy : creator.getGoombas())
             enemy.draw(game.batch);
+        for (Item item : items){
+            item.draw(game.batch);
+        }
         game.batch.end();
 
         //Set our batch to now draw what the Hud camera sees.
